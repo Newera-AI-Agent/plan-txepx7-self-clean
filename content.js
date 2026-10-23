@@ -52,8 +52,9 @@
   // 去除所有空白（antd 两字按钮自动加空格，如"驳 回" → "驳回"）
   const norm = (s) => trim(s).replace(/\s+/g, "");
 
-  // 找到文本精确/包含匹配的元素（取最内层）
-  function findTextEl(text, root = document, tag = "*") {
+    // 找到文本精确/包含匹配的元素（取最内层）
+  // 使用 TreeWalker 高效遍历文本节点，避免 querySelectorAll('*') 的性能问题
+  function findTextEl(text, root = document, tag = "button, span, div, a, label, td, th, li, p, h1, h2, h3, h4, h5, h6") {
     const nodes = $$(tag, root);
     for (const n of nodes) {
       const t = trim(n.textContent);
@@ -222,7 +223,7 @@
 
     // 从行容器提取编号：优先匹配单元格级文本（td/th/首个子容器），退路行文本
   function extractCode(row, prefixes) {
-    const escapedPrefixes = prefixes.map(p => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('');
+    const escapedPrefixes = prefixes.map(p => p.replace(/[.*+?^${}()\[\]\\]/g, '\\$&')).join('');
     const reCell = new RegExp("^\\s*([" + escapedPrefixes + "])(\\d{1,2})\\s*$");
     // 1) 独立单元格
     const cells = $$("td, th", row);
@@ -663,9 +664,13 @@
       else if (el.dataset.act === "cancel") { closeLayer(); }
       else if (el.dataset.k) {
         const k = el.dataset.k;
-        if (k.indexOf("sc") === 0) f.scene = k === "sc-none" ? null : scenes[+k.slice(2)];
-        else if (k.indexOf("d") === 0) f.dur = k === "da" ? null : +k.slice(1);
-        else if (k === "ry") f.reject = "y";
+        if (k === "sc-none") {
+          f.scene = null;
+        } else if (k.indexOf("sc") === 0) {
+          f.scene = scenes[+k.slice(2)];
+        } else if (k.indexOf("d") === 0) {
+          f.dur = k === "da" ? null : +k.slice(1);
+        } else if (k === "ry") f.reject = "y";
         else if (k === "rn") f.reject = "n";
         else if (k === "ra") f.reject = null;
         renderFilterPanel();

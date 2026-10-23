@@ -6,7 +6,7 @@ This is the authoritative list of what exists in this project. If a symbol is no
 
 ## Files and public API
 
-### `content.js` - 1541 lines
+### `content.js` - 1542 lines
 - exports: (nothing public)
 
 ## Unresolved references
